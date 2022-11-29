@@ -11,13 +11,13 @@ const Timer = (props: Props) => {
 	const [timeLeft, setTimeLeft] = useState<duration.Duration>(
 		dayjs.duration({ minutes: inputTime, seconds: 0 })
 	)
-	const [totalTime] = useState(
+	const [totalTime, setTotalTime] = useState(
 		dayjs.duration({ minutes: inputTime, seconds: 0 }).as('milliseconds')
 	)
 	const [isTimerStopped, setIsTimerStopped] = useState(true)
 	const [timeLeftPercent, setTimeLeftPercent] = useState(1)
 	const [userMessage, setUserMessage] = useState('')
-	const inputRef = useRef(null)
+	const inputRef = useRef<HTMLInputElement>(null)
 
 	useEffect(() => {
 		let interval: number | undefined
@@ -46,23 +46,59 @@ const Timer = (props: Props) => {
 		setTimeLeftPercent(() => timeLeft.as('milliseconds') / totalTime)
 	}, [timeLeft])
 
-	const handleInputTime = () => {}
+	const handleInputTime = () => {
+		if (inputRef.current !== null) {
+			console.log(inputRef.current.value)
+			if (
+				parseInt(inputRef.current.value) > 0 &&
+				parseInt(inputRef.current.value) <= 90
+			) {
+				setInputTime(parseInt(inputRef.current.value))
+				setTimeLeft(
+					dayjs.duration({
+						minutes: parseInt(inputRef.current.value),
+						seconds: 0,
+					})
+				)
+				setTotalTime(
+					dayjs
+						.duration({
+							minutes: parseInt(inputRef.current.value),
+							seconds: 0,
+						})
+						.as('milliseconds')
+				)
+				setUserMessage('')
+			} else {
+				setUserMessage('Please enter a positive number between 1-90')
+			}
+		}
+	}
 
 	return (
-		<div>
-			<img className='tomato' src={tomato} alt='Pomadoro Tomato Timer' />
+		<div className='timer'>
+			<img
+				className='tomato'
+				src={tomato}
+				alt='Pomadoro Tomato Timer'
+				style={{}}
+			/>
 			<p>{userMessage}</p>
 			<p className='timer'>{timeLeft.format('m:ss')}</p>
 			<button onClick={() => setIsTimerStopped(false)}>start timer</button>
 			<button onClick={() => setIsTimerStopped(true)}>stop timer</button>
 			{isTimerStopped && (
-				<input
-					type='number'
-					value={inputTime}
-					onChange={(e) => setInputTime(parseInt(e.target.value))}
-				/>
+				<div className='input-pair'>
+					<input
+						className='timer-input'
+						type='number'
+						ref={inputRef}
+						placeholder='set a custom time'
+					/>
+
+					<button onClick={handleInputTime}>set time</button>
+				</div>
 			)}
-			<button onClick={handleInputTime}>set time</button>
 		</div>
 	)
 }
