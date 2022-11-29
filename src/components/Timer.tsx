@@ -10,29 +10,37 @@ const Timer = (props: Props) => {
 	const [timeLeft, setTimeLeft] = useState(
 		dayjs.duration({ minutes: 0, seconds: 10 })
 	)
-	const [isTimerOn, setIsTimerOn] = useState(false)
+	const [isTimerStopped, setIsTimerStopped] = useState(true)
 
 	useEffect(() => {
-		setTimeLeft((prevTime) => prevTime.subtract(1, 's'))
-		const interval = setInterval(() => {
-			if (timeLeft.format('m:ss') === '0:00') {
-				setIsTimerOn(false)
-				console.log('happens')
-			}
-			if (isTimerOn) setTimeLeft((prevTime) => prevTime.subtract(1, 's'))
-		}, 1000)
+		let interval: number | undefined
+
+		if (!isTimerStopped) {
+			interval = setInterval(() => {
+				setTimeLeft((prev) => {
+					if (prev.get('seconds') !== 0) {
+						return prev.subtract(1, 's')
+					} else {
+						clearInterval(interval)
+						return prev
+					}
+				})
+			}, 1000)
+		} else {
+			clearInterval(interval)
+		}
 
 		return () => {
 			clearInterval(interval)
 		}
-	}, [isTimerOn])
+	}, [isTimerStopped])
 
 	return (
 		<div>
 			<img className='tomato' src={tomato} alt='Pomadoro Tomato Timer' />
 			<p className='timer'>{timeLeft.format('m:ss')}</p>
-			<button onClick={() => setIsTimerOn(true)}>start timer</button>
-			<button onClick={() => setIsTimerOn(false)}>stop timer</button>
+			<button onClick={() => setIsTimerStopped(false)}>start timer</button>
+			<button onClick={() => setIsTimerStopped(true)}>stop timer</button>
 		</div>
 	)
 }
