@@ -5,8 +5,10 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	text-align: center;
 }
 
 .tomato {
 	width: 10vh;
+	margin: 0.5rem;
 }
